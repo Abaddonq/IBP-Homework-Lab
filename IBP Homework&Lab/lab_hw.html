@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab Homework</title>
+    <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #ffffff;
+      margin: 25px;
+      padding:25px;
+    }
+
+  </style>
+   
+</head>
+<body>
+<?php
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "students";
+
+$conn = new mysqli($servername, $username, $password);
+
+if ($conn->connect_error) {
+    die("baglanti saglanamadi: " . $conn->connect_error);
+}
+
+$sql = "CREATE DATABASE IF NOT EXISTS $dbname";
+if ($conn->query($sql) != TRUE) {
+    echo "database olusturalamadi: " . $conn->error . "<br>";
+}
+
+$conn->select_db($dbname);
+
+$sql = "CREATE TABLE IF NOT EXISTS students (
+    id INT(11) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    full_name VARCHAR(25) NOT NULL,
+    email VARCHAR(99) NOT NULL,
+    gender ENUM('Male', 'Female') NOT NULL
+)";
+if ($conn->query($sql) != TRUE) {
+    echo "Tablo olusturalamadi: " . $conn->error . "<br>";
+} 
+if ($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST['status'] == "submit") {
+  $full_name = $_POST['full_name'];
+  $email = $_POST['email'];
+  $gender = $_POST['gender'];
+  $sql = "INSERT INTO students (full_name, email, gender) VALUES ('$full_name', '$email', '$gender')";
+  if ($conn->query($sql) !== TRUE) {
+      echo "Error: " . $sql . "<br>" . $conn->error;
+  } else {  
+      echo "<h5>ogrenci kaydi basarili</h5>";
+  }
+}
+
+$conn->close();
+?>
+    <div class="my-div">
+    <form action="?status=submit" method="post">
+        <h3><p>Student Registration Form</p></h3>
+    <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" class="form-control" name="full_name" required>
+
+    </div>
+
+  <div class="form-group">
+    <label >E-mail</label>
+    <input type="email" class="form-control" name="email" required>
+
+  </div>
+
+
+  <div class="form-group">
+    <label>Gender</label><br>
+    <label><input type="radio" name="gender" value="Male" required> Male</label>
+    <label><input type="radio" name="gender" value="Female"> Female</label>
+</div>
+ 
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+</div>
+
+<div class="students-list">
+<table>
+    <tr>
+      <th>ID</th>
+      <th>Full Name</th>
+      <th>E-mail</th>
+      <th>Gender</th>
+    </tr>
+
+    <?php
+    $conn = new mysqli($servername, $username, $password, $dbname);
+    if ($conn->connect_error) {
+        die("baglanti saglanamadi: " . $conn->connect_error);
+    }
+    $sql = "SELECT * FROM students";
+    $result = $conn->query($sql);
+    
+    foreach ($result as $rs) {
+        ?>
+       <tr>
+          <td> <?=$rs['id'] ?> </td>
+          <td> <?=$rs['full_name'] ?> </td>
+          <td> <?=$rs['email']?> </td>
+          <td> <?=$rs['gender']?> </td>
+        </tr>
+
+    <?php   
+    }
+      $conn->close();
+    ?>
+
+  </table>
+</div>
+
+
+</body>
+</html>
